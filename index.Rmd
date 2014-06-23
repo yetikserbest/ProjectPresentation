@@ -1,0 +1,77 @@
+---
+title       : Estimating MPG for Cars
+subtitle    : Shiny Application 
+author      : Yetik Serbest
+job         : 
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [bootstrap, quiz, shiny, interactive]            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+---
+
+## Tool Description
+
+- It calculates MPG estimate for a car given the following information
+  * Transmission type
+  * Number of Cylinders in the engine
+  * Weight of the car
+  * Horse power of the car
+- The calculation is done based on the linear model developed using mtcars data set in R
+- User enters the parameters as well as the confidence interval
+- The tool provides the estimated MPG, confidence interval, and the plot for the confidence interval
+- The tool is hosted in this link [here] (https://yetikserbest.shinyapps.io/DevelopingDataProductsProject/)
+
+--- .class #id 
+
+## Tool Layout
+
+* The tool has an input panel
+* The tool has two output tabs: 1. Result, 2. Plot
+* Result tab provide the estimated MPG and the confidence limits
+* Plot tab provides the diagram for the confidence interval
+* By default, the tool displays ui.R and server.R files on the right
+* By default, the tool displays the tool readme file at the bottom
+
+---
+
+## MPG Calculation Detail
+
+- Shiny application is a wrapper to make it easy for the user and the user does not need to know R
+- This is the exact model used in the application
+
+```{r }
+data(mtcars)
+fit <- lm(mpg ~ factor(am) + wt + factor(cyl) + hp, data=mtcars)
+
+```
+
+- The follwing is an example calculation
+
+```{r}
+predict(fit,newdata=list(am=factor(1),wt=3,cyl=factor(6),hp=280),interval=("confidence"), level=0.95)
+
+```
+
+
+--- &interactive
+
+## Tool Interactive Console
+
+```{r opts.label = 'shiny'}
+  slidifyUI(
+    radioButtons("transmission","Transmission Type:",
+                 list("Automatic"="0","Manual"="1")),
+    radioButtons("cylinder","Number of Cylinders:",
+                 list("4 Cylinders"="4","6 Cylinders"="6","8 Cylinders"="8")),
+    textInput(inputId="weight",label="Weight of the car (in 1000lb)"),
+    textInput(inputId="horsepower",label="Horse Power of the car"),
+    sliderInput("confint","Confidence Interval:",0,1,0.05),
+    submitButton('Submit')
+  )
+  mainPanel(
+#    textOutput('result')
+    tags$div(id = 'nvd3plot', class='shiny-html-output nvd3 rChart')
+)
+
+```
